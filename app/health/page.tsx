@@ -102,7 +102,7 @@ export default function HealthTrendsPage() {
       const mid = Math.floor(stats.vaccinations.length / 2);
       const firstHalf = stats.vaccinations.slice(0, mid).reduce((a, b) => a + b, 0) / mid;
       const secondHalf = stats.vaccinations.slice(mid).reduce((a, b) => a + b, 0) / (stats.vaccinations.length - mid);
-      const trend = secondHalf > firstHalf * 1.1 ? 'increasing' :
+      const trend: 'increasing' | 'decreasing' | 'stable' = secondHalf > firstHalf * 1.1 ? 'increasing' :
                     secondHalf < firstHalf * 0.9 ? 'decreasing' : 'stable';
 
       // Find peak
