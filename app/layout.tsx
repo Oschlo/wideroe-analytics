@@ -59,6 +59,12 @@ export default function RootLayout({
                   >
                     Monitoring
                   </Link>
+                  <Link
+                    href="/admin/organizations"
+                    className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-blue-600"
+                  >
+                    Admin
+                  </Link>
                 </div>
               </div>
             </div>
