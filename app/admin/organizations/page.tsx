@@ -282,7 +282,7 @@ export default function OrganizationsAdminPage() {
               </div>
 
               {/* Coverage Stats */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg border border-gray-200 p-4">
                   <div className="text-sm text-gray-500 mb-1">Active Locations</div>
                   <div className="text-3xl font-bold text-blue-600">{locationCount}</div>
@@ -301,6 +301,16 @@ export default function OrganizationsAdminPage() {
                     className="text-sm text-green-600 hover:text-green-700 mt-2 inline-block"
                   >
                     Configure →
+                  </Link>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="text-sm text-gray-500 mb-1">Internal Data</div>
+                  <div className="text-3xl font-bold text-purple-600">0</div>
+                  <Link
+                    href={`/admin/organizations/${selectedOrg.organization_slug}/data-sources`}
+                    className="text-sm text-purple-600 hover:text-purple-700 mt-2 inline-block"
+                  >
+                    Connect →
                   </Link>
                 </div>
               </div>
