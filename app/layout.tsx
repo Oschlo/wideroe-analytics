@@ -3,7 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Widerøe Analytics | Multi-Tenant Analytics Platform",
+  title: "Analytics Platform | Multi-Tenant Regression Analysis",
   description: "Universal analytics platform combining open data sources for regression analysis",
 };
 
@@ -20,7 +20,7 @@ export default function RootLayout({
             <div className="flex justify-between h-16">
               <div className="flex">
                 <Link href="/" className="flex items-center px-2 text-gray-900 font-bold text-xl">
-                  Widerøe Analytics
+                  Analytics Platform
                 </Link>
                 <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                   <Link

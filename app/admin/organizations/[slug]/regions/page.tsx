@@ -47,7 +47,7 @@ export default function RegionConfigPage() {
 
     // Get all regions with their location counts
     const { data: allLocations } = await supabase
-      .from('v_wideroe_destinations')
+      .from('v_locations')
       .select('region, location_sk');
 
     // Get monitored locations for this org
@@ -88,7 +88,7 @@ export default function RegionConfigPage() {
   const toggleRegion = async (region: string, currentState: boolean) => {
     // Get all locations in this region
     const { data: regionLocs } = await supabase
-      .from('v_wideroe_destinations')
+      .from('v_locations')
       .select('location_sk')
       .eq('region', region);
 
@@ -168,7 +168,7 @@ export default function RegionConfigPage() {
             Region Configuration - {orgName}
           </h1>
           <p className="text-gray-600">
-            Enable or disable monitoring for entire Norwegian regions (fylker)
+            Enable or disable monitoring for entire regions
           </p>
         </div>
 
@@ -192,7 +192,7 @@ export default function RegionConfigPage() {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="text-sm text-gray-500 mb-1">Total Regions</div>
             <div className="text-3xl font-bold text-gray-900">{regions.length}</div>
-            <div className="text-sm text-gray-500 mt-1">Norwegian fylker</div>
+            <div className="text-sm text-gray-500 mt-1">regions</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="text-sm text-gray-500 mb-1">Monitored Regions</div>
@@ -303,9 +303,9 @@ export default function RegionConfigPage() {
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h3 className="font-medium text-blue-900 mb-2">ℹ️ How Region Monitoring Works</h3>
           <ul className="text-sm text-blue-800 space-y-2">
-            <li>• <strong>Enable All:</strong> Activates monitoring for all airports in the selected region</li>
-            <li>• <strong>Disable All:</strong> Deactivates monitoring for all airports in the selected region</li>
-            <li>• <strong>Partial Coverage:</strong> Some (but not all) airports in the region are monitored</li>
+            <li>• <strong>Enable All:</strong> Activates monitoring for all locations in the selected region</li>
+            <li>• <strong>Disable All:</strong> Deactivates monitoring for all locations in the selected region</li>
+            <li>• <strong>Partial Coverage:</strong> Some (but not all) locations in the region are monitored</li>
             <li>• For fine-grained control, use the <Link href={`/admin/organizations/${slug}/locations`} className="underline">Locations</Link> tab</li>
           </ul>
         </div>

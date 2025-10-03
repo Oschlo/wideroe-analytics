@@ -83,14 +83,24 @@ export default function OrganizationsAdminPage() {
 
     setLocationCount(locCount || 0);
 
-    // Fetch region count
-    const { count: regCount } = await supabase
-      .from('organization_regions')
-      .select('*', { count: 'exact', head: true })
+    // Count distinct regions from monitored locations
+    const { data: monitoredLocs } = await supabase
+      .from('organization_locations')
+      .select('location_sk')
       .eq('organization_id', orgId)
       .eq('is_active', true);
 
-    setRegionCount(regCount || 0);
+    if (monitoredLocs && monitoredLocs.length > 0) {
+      const { data: locations } = await supabase
+        .from('v_locations')
+        .select('region')
+        .in('location_sk', monitoredLocs.map(l => l.location_sk));
+
+      const uniqueRegions = new Set(locations?.map(l => l.region) || []);
+      setRegionCount(uniqueRegions.size);
+    } else {
+      setRegionCount(0);
+    }
   };
 
   const toggleIntegration = async (orgId: string, sourceName: string, currentState: boolean) => {

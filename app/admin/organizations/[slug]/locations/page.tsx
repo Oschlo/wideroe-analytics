@@ -9,7 +9,7 @@ interface Location {
   location_sk: number;
   iata_code: string;
   icao_code: string;
-  airport_name: string;
+  location_name: string;
   city: string;
   region: string;
   latitude: number;
@@ -57,7 +57,7 @@ export default function LocationConfigPage() {
 
     // Get all Widerøe locations with monitoring status
     const { data: allLocs } = await supabase
-      .from('v_wideroe_destinations')
+      .from('v_locations')
       .select('*')
       .order('iata_code');
 
@@ -184,7 +184,7 @@ export default function LocationConfigPage() {
             Location Configuration
           </h1>
           <p className="text-gray-600">
-            Select which Widerøe destinations to monitor for {orgName}
+            Select which locations to monitor for {orgName}
           </p>
         </div>
 
@@ -229,10 +229,10 @@ export default function LocationConfigPage() {
         <div className="bg-white rounded-lg border border-gray-200">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">
-              Widerøe Destinations ({locations.length})
+              Locations ({locations.length})
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              Toggle monitoring for each airport location
+              Toggle monitoring for each location
             </p>
           </div>
           <div className="overflow-x-auto">
@@ -240,7 +240,7 @@ export default function LocationConfigPage() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Airport
+                    Location
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Code
@@ -266,7 +266,7 @@ export default function LocationConfigPage() {
                 {locations.map((location) => (
                   <tr key={location.location_sk} className={location.is_monitored ? 'bg-green-50' : ''}>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{location.airport_name}</div>
+                      <div className="text-sm font-medium text-gray-900">{location.location_name}</div>
                       {location.met_station_id && (
                         <div className="text-xs text-gray-500">MET: {location.met_station_id}</div>
                       )}
