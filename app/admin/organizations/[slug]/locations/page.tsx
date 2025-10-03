@@ -188,6 +188,21 @@ export default function LocationConfigPage() {
           </p>
         </div>
 
+        {/* Navigation Tabs */}
+        <div className="mb-6 border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8">
+            <span className="py-4 px-1 border-b-2 border-blue-500 text-blue-600 font-medium">
+              Locations
+            </span>
+            <Link
+              href={`/admin/organizations/${slug}/regions`}
+              className="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            >
+              Regions
+            </Link>
+          </nav>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-lg border border-gray-200 p-4">
