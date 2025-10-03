@@ -53,7 +53,10 @@ export default function OrganizationsAdminPage() {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (!error && data) {
+    if (error) {
+      console.error('Error fetching organizations:', error);
+    } else if (data) {
+      console.log('Fetched organizations:', data);
       setOrganizations(data);
       if (data.length > 0 && !selectedOrg) {
         setSelectedOrg(data[0]);
