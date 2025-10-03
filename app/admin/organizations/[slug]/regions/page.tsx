@@ -102,7 +102,7 @@ export default function RegionConfigPage() {
         .eq('organization_id', orgId)
         .in('location_sk', regionLocs.map(l => l.location_sk));
     } else {
-      // Add all locations in this region
+      // Add all locations in this region (skip if already exists)
       const inserts = regionLocs.map(l => ({
         organization_id: orgId,
         location_sk: l.location_sk,
@@ -110,11 +110,12 @@ export default function RegionConfigPage() {
         priority: 2
       }));
 
-      await supabase
-        .from('organization_locations')
-        .insert(inserts)
-        .onConflict('organization_id, location_sk')
-        .merge();
+      // Insert each location, ignoring conflicts
+      for (const insert of inserts) {
+        await supabase
+          .from('organization_locations')
+          .upsert(insert, { onConflict: 'organization_id,location_sk' });
+      }
     }
 
     loadData();
