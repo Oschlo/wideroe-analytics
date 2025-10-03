@@ -81,16 +81,14 @@ COMMENT ON VIEW v_org_latest_weather IS 'Weather data filtered by organization l
 
 -- View: Health signals for organization regions
 CREATE OR REPLACE VIEW v_org_health_signals AS
-SELECT
+SELECT DISTINCT
   o.organization_slug,
   h.*
 FROM fact_health_signal_week h
 JOIN organization_locations ol ON TRUE  -- Will filter by region
 JOIN organizations o ON o.organization_id = ol.organization_id
 JOIN dim_location l ON l.location_sk = ol.location_sk AND l.region = h.region
-WHERE ol.is_active = TRUE
-GROUP BY o.organization_slug, h.date_sk, h.region, h.iso_year, h.iso_week,
-         h.influenza_vaccinations, h.data_source;
+WHERE ol.is_active = TRUE;
 
 COMMENT ON VIEW v_org_health_signals IS 'Health signals filtered by organization regions';
 
