@@ -18,10 +18,19 @@ interface WeatherData {
   wind_shift_flag: boolean;
   front_passage_flag: boolean;
   data_source: string;
+  dim_location?: {
+    location_sk: number;
+    name: string;
+    city: string;
+    region: string;
+  };
 }
 
 interface LocationSummary {
   location_sk: number;
+  location_name: string;
+  city: string;
+  region: string;
   avg_temp: number;
   total_precip: number;
   max_wind: number;
@@ -49,10 +58,13 @@ export default function WeatherAnalyticsPage() {
   const fetchWeatherData = async () => {
     setLoading(true);
 
-    // Fetch recent weather data (last 30 days) for monitored locations only
+    // Fetch recent weather data (last 30 days) for monitored locations with location names
     const { data: weather, error: weatherError } = await supabase
       .from('fact_weather_day')
-      .select('*')
+      .select(`
+        *,
+        dim_location!inner(location_sk, name, city, region)
+      `)
       .in('location_sk', monitoredLocations)
       .order('date_sk', { ascending: false })
       .limit(monitoredLocations.length * 30); // 30 days × number of monitored locations
@@ -117,18 +129,29 @@ export default function WeatherAnalyticsPage() {
     });
 
     // Convert to summary array
-    return Array.from(locationMap.entries()).map(([location_sk, stats]) => ({
-      location_sk,
-      avg_temp: stats.temps.length > 0
-        ? stats.temps.reduce((a, b) => a + b, 0) / stats.temps.length
-        : 0,
-      total_precip: stats.precips.reduce((a, b) => a + b, 0),
-      max_wind: stats.winds.length > 0 ? Math.max(...stats.winds) : 0,
-      cold_shocks: stats.coldShocks,
-      wind_shifts: stats.windShifts,
-      front_passages: stats.frontPassages,
-      days_recorded: stats.days
-    })).sort((a, b) => b.cold_shocks + b.wind_shifts - (a.cold_shocks + a.wind_shifts));
+    return Array.from(locationMap.entries()).map(([location_sk, stats]) => {
+      // Find the first record for this location to get name
+      const locationRecord = data.find(d => d.location_sk === location_sk);
+      const locationName = locationRecord?.dim_location?.name || `Location ${location_sk}`;
+      const city = locationRecord?.dim_location?.city || '';
+      const region = locationRecord?.dim_location?.region || '';
+
+      return {
+        location_sk,
+        location_name: locationName,
+        city,
+        region,
+        avg_temp: stats.temps.length > 0
+          ? stats.temps.reduce((a, b) => a + b, 0) / stats.temps.length
+          : 0,
+        total_precip: stats.precips.reduce((a, b) => a + b, 0),
+        max_wind: stats.winds.length > 0 ? Math.max(...stats.winds) : 0,
+        cold_shocks: stats.coldShocks,
+        wind_shifts: stats.windShifts,
+        front_passages: stats.frontPassages,
+        days_recorded: stats.days
+      };
+    }).sort((a, b) => b.cold_shocks + b.wind_shifts - (a.cold_shocks + a.wind_shifts));
   };
 
   const formatDateSk = (dateSk: number): string => {
@@ -273,8 +296,9 @@ export default function WeatherAnalyticsPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {locationSummary.map((location) => (
                   <tr key={location.location_sk} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      Location {location.location_sk}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{location.location_name}</div>
+                      <div className="text-xs text-gray-500">{location.city}, {location.region}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {location.avg_temp.toFixed(1)}
