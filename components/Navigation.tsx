@@ -53,6 +53,12 @@ export function Navigation() {
                 Regression
               </Link>
               <Link
+                href="/placebo"
+                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-blue-600"
+              >
+                🎪 Placebo
+              </Link>
+              <Link
                 href="/admin/monitoring"
                 className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-blue-600"
               >
