@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useOrganization } from '@/lib/context/OrganizationContext';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({
@@ -15,26 +16,30 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
 
+  const { monitoredLocations, monitoredRegions, isLoading: orgLoading } = useOrganization();
   const supabase = createClient();
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    if (!orgLoading && monitoredLocations.length > 0) {
+      fetchStats();
+    }
+  }, [orgLoading, monitoredLocations, monitoredRegions]);
 
   const fetchStats = async () => {
     setLoading(true);
 
-    // Fetch counts from each data source
+    // Fetch counts from each data source filtered by organization locations/regions
     const [weather, health, economic] = await Promise.all([
-      supabase.from('fact_weather_day').select('*', { count: 'exact', head: true }),
-      supabase.from('fact_health_signal_week').select('*', { count: 'exact', head: true }),
+      supabase.from('fact_weather_day').select('*', { count: 'exact', head: true }).in('location_sk', monitoredLocations),
+      supabase.from('fact_health_signal_week').select('*', { count: 'exact', head: true }).in('region', monitoredRegions),
       supabase.from('fact_macro_month').select('*', { count: 'exact', head: true })
     ]);
 
-    // Get latest update timestamp
+    // Get latest update timestamp from monitored locations
     const { data: latestWeather } = await supabase
       .from('fact_weather_day')
       .select('date_sk')
+      .in('location_sk', monitoredLocations)
       .order('date_sk', { ascending: false })
       .limit(1)
       .single();
@@ -43,8 +48,8 @@ export default function DashboardPage() {
       weatherRecords: weather.count || 0,
       healthRecords: health.count || 0,
       economicRecords: economic.count || 0,
-      locations: 15, // Widerøe destinations
-      regions: 9,    // Norwegian regions
+      locations: monitoredLocations.length,
+      regions: monitoredRegions.length,
       lastUpdate: latestWeather ? formatDateSk(latestWeather.date_sk) : 'Never'
     });
 
@@ -56,7 +61,7 @@ export default function DashboardPage() {
     return `${str.slice(0, 4)}-${str.slice(4, 6)}-${str.slice(6, 8)}`;
   };
 
-  if (loading) {
+  if (loading || orgLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto p-8">

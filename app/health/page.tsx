@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useOrganization } from '@/lib/context/OrganizationContext';
 
 interface HealthData {
   region: string;
@@ -33,19 +34,23 @@ export default function HealthTrendsPage() {
   const [weeklyTrends, setWeeklyTrends] = useState<WeeklyTrend[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const { monitoredRegions, isLoading: orgLoading } = useOrganization();
   const supabase = createClient();
 
   useEffect(() => {
-    fetchHealthData();
-  }, []);
+    if (!orgLoading && monitoredRegions.length > 0) {
+      fetchHealthData();
+    }
+  }, [orgLoading, monitoredRegions]);
 
   const fetchHealthData = async () => {
     setLoading(true);
 
-    // Fetch FHI SYSVAK vaccination data
+    // Fetch FHI SYSVAK vaccination data for monitored regions only
     const { data: health, error } = await supabase
       .from('fact_health_signal_week')
       .select('*')
+      .in('region', monitoredRegions)
       .not('influenza_vaccinations', 'is', null)
       .eq('data_source', 'FHI_SYSVAK')
       .order('iso_year', { ascending: false })
@@ -164,7 +169,7 @@ export default function HealthTrendsPage() {
     }
   };
 
-  if (loading) {
+  if (loading || orgLoading) {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-7xl mx-auto">

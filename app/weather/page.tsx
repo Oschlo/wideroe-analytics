@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useOrganization } from '@/lib/context/OrganizationContext';
 
 interface WeatherData {
   date_sk: number;
@@ -36,21 +37,25 @@ export default function WeatherAnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
 
+  const { monitoredLocations, isLoading: orgLoading } = useOrganization();
   const supabase = createClient();
 
   useEffect(() => {
-    fetchWeatherData();
-  }, []);
+    if (!orgLoading && monitoredLocations.length > 0) {
+      fetchWeatherData();
+    }
+  }, [orgLoading, monitoredLocations]);
 
   const fetchWeatherData = async () => {
     setLoading(true);
 
-    // Fetch recent weather data (last 30 days)
+    // Fetch recent weather data (last 30 days) for monitored locations only
     const { data: weather, error: weatherError } = await supabase
       .from('fact_weather_day')
       .select('*')
+      .in('location_sk', monitoredLocations)
       .order('date_sk', { ascending: false })
-      .limit(450); // 30 days × 15 locations
+      .limit(monitoredLocations.length * 30); // 30 days × number of monitored locations
 
     if (weatherError) {
       console.error('Error fetching weather:', weatherError);
@@ -147,7 +152,7 @@ export default function WeatherAnalyticsPage() {
     return locationSummary.reduce((sum, loc) => sum + loc.total_precip, 0).toFixed(1);
   };
 
-  if (loading) {
+  if (loading || orgLoading) {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-7xl mx-auto">
